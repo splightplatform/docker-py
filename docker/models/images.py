@@ -14,6 +14,7 @@ class Image(Model):
     """
     An image on the server.
     """
+
     def __repr__(self):
         return "<{}: '{}'>".format(
             self.__class__.__name__,
@@ -145,6 +146,7 @@ class RegistryData(Model):
     """
     Image metadata stored on the registry, including available platforms.
     """
+
     def __init__(self, image_name, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.image_name = image_name
@@ -295,6 +297,7 @@ class ImageCollection(Collection):
             ``TypeError``
                 If neither ``path`` nor ``fileobj`` is specified.
         """
+        vervose = kwargs.pop('vervose', False)
         resp = self.client.api.build(**kwargs)
         if isinstance(resp, str):
             return self.get(resp)
@@ -305,6 +308,8 @@ class ImageCollection(Collection):
             if 'error' in chunk:
                 raise BuildError(chunk['error'], result_stream)
             if 'stream' in chunk:
+                if vervose:
+                    print(chunk['stream'], end='')
                 match = re.search(
                     r'(^Successfully built |sha256:)([0-9a-f]+)$',
                     chunk['stream']
